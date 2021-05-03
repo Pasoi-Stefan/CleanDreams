@@ -1,0 +1,7 @@
+# CLion setup
+.idea
+cmake-build-debug
+CMakeLists.txt
+
+# Executable
+cleandreams_washing_machine
