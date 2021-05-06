@@ -1,7 +1,8 @@
-# CLion setup
+# CLion
 .idea
+
+# Build
 cmake-build-debug
-CMakeLists.txt
 
 # Executable
 cleandreams_washing_machine

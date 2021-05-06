@@ -3,11 +3,12 @@
 #include <pistache/peer.h>
 #include <pistache/router.h>
 #include <pistache/endpoint.h>
-
+#include <nlohmann/json.hpp>
 #include <exception>
 
 using namespace std;
 using namespace Pistache;
+using namespace nlohmann;
 
 // Class with settings for washing machine
 class WashingMachine {
@@ -38,11 +39,14 @@ public:
     }
 
     // Get settings
-    string get(const string& name) {
-        if (name == "status")
-            return to_string(status);
+    string get() {
+        // https://github.com/nlohmann/json#examples
+        // First example
+        json responseBody = {
+                {"status", status}
+        };
 
-        return "";
+        return responseBody.dump();
     }
 };
 
@@ -64,49 +68,51 @@ private:
     void setupRoutes() {
         // Defining various endpoints
         // Generally say that when http://localhost:9080/ready is called, the handleReady function should be called
-        Rest::Routes::Post(router, "/settings/:settingName/:value",
-                           Rest::Routes::bind(&ServerEndpoint::setSetting, this));
-        Rest::Routes::Get(router, "/settings/:settingName/",
-                          Rest::Routes::bind(&ServerEndpoint::getSetting, this));
+        Rest::Routes::Post(router, "/settings",
+                           Rest::Routes::bind(&ServerEndpoint::setSettings, this));
+        Rest::Routes::Get(router, "/settings",
+                          Rest::Routes::bind(&ServerEndpoint::getSettings, this));
     }
 
     // You don't know what the parameter content that you receive is, but you should
     // try to cast it to some data structure (ex: request.param(":settingName").as<std::string>())
 
     // Configure a setting
-    void setSetting(const Rest::Request& request, Http::ResponseWriter response) {
-        auto settingName = request.param(":settingName").as<std::string>();
-        string val = "";
+    void setSettings(const Rest::Request& request, Http::ResponseWriter response) {
+        // https://nlohmann.github.io/json/features/parsing/parse_exceptions/
+        // Parse the request body as json and catch parsing error
+        try {
+            json settingsValues = json::parse(request.body());
 
-        if (request.hasParam(":value"))
-            val = request.param(":value").as<string>();
+            // https://nlohmann.github.io/json/features/iterators/
+            // The for loop for processing each (key, value) pair from a json
+            for (auto& [key, val] : settingsValues.items()) {
+                // If val is not a string in json, and exception is thrown
+                int setResponse = washingMachine.set(key, val.dump());
 
-        // Set new value to the specified setting
-        int setResponse = washingMachine.set(settingName, val);
+                if(!setResponse) {
+                    response.send(Http::Code::Bad_Request, key + " was not found and or '" + val.dump() + "' was not a valid value ");
+                    return;
+                }
+            }
+        }
+        catch (json::parse_error& e) {
+            response.send(Http::Code::Bad_Request, e.what());
+            return;
+        }
 
-        // Sending some confirmation or error response
-        if (setResponse == 1)
-            response.send(Http::Code::Ok, settingName + " was set to " + val);
-        else
-            response.send(Http::Code::Not_Found, settingName + " was not found and or '" + val + "' was not a valid value ");
+        response.send(Http::Code::Ok, "Settings updated successfully.");
     }
 
-    // Get a setting
-    void getSetting(const Rest::Request& request, Http::ResponseWriter response) {
-        auto settingName = request.param(":settingName").as<string>();
-        string valueSetting = washingMachine.get(settingName);
+    // Get all settings
+    void getSettings(const Rest::Request& request, Http::ResponseWriter response) {
+        string settings = washingMachine.get();
 
-        if (valueSetting != "") {
-            // In this response I also add a couple of headers, describing the server that sent this response
-            // and the way the content is formatted
-            response.headers()
-                    .add<Http::Header::Server>("pistache/0.1")
-                    .add<Http::Header::ContentType>(MIME(Text, Plain));
+        response.headers()
+                .add<Http::Header::Server>("pistache/0.1")
+                .add<Http::Header::ContentType>(MIME(Application, Json));
 
-            response.send(Http::Code::Ok, settingName + " is " + valueSetting);
-        }
-        else
-            response.send(Http::Code::Not_Found, settingName + " was not found");
+        response.send(Http::Code::Ok, settings);
     }
 
 public:
