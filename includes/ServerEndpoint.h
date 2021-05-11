@@ -3,6 +3,7 @@
 #include <pistache/peer.h>
 #include <pistache/router.h>
 #include <pistache/endpoint.h>
+
 #include "WashingMachine.h"
 
 using namespace Pistache;
@@ -25,17 +26,36 @@ private:
     // Get all settings
     void getSettings(const Rest::Request& request, Http::ResponseWriter response);
 
+    // Schedule a washing program (NOT IMPLEMENTED)
+    void scheduleProgram(const Rest::Request& request, Http::ResponseWriter response);
+
 public:
     // Constructor
     explicit ServerEndpoint(Address addr)
             : httpEndpoint(make_shared<Http::Endpoint>(addr)) { }
 
     // Initialization of the server. Additional options can be provided here
-    void init();
+    void init() {
+        // https://github.com/pistacheio/pistache/issues/441#issuecomment-730102957
+        // Seems to solve the issue with "Address already in use"
+
+        // Set options before initialising endpoint
+        auto opts = Http::Endpoint::options()
+                .flags(Tcp::Options::ReuseAddr);
+
+        httpEndpoint->init(opts);
+
+        // Server routes are loaded up
+        setupRoutes();
+    }
 
     // Start server
-    void start();
+    void start() {
+        httpEndpoint->setHandler(router.handler());
+    }
 
     // Wait for signal for server to shut down
-    void waitForSignal();
+    void waitForSignal() {
+        httpEndpoint->serve();
+    }
 };
