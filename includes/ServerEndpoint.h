@@ -26,9 +26,11 @@ private:
     // Get all settings
     void getSettings(const Rest::Request& request, Http::ResponseWriter response);
 
-    // Schedule a washing program (NOT IMPLEMENTED)
+    // Schedule a washing program
     void scheduleProgram(const Rest::Request& request, Http::ResponseWriter response);
 
+    // Get status of machine
+    void getStatus(const Rest::Request& request, Http::ResponseWriter response);
 public:
     // Constructor
     explicit ServerEndpoint(Address addr)
