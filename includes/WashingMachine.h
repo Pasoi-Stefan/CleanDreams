@@ -14,11 +14,12 @@ private:
     string status;                                                   //  Current status of washing machine
     double detergentCache;                                           //  Total quantity of detergent available for washing programs
     double impurity;                                                 //  Percent of water impurity (give warning when impurity exceeds limit)
+    bool waterSupplyAvailable;                                       //  If water supply is available or not
     double elapsedTimeOnPause;                                       //  Elapsed time of washing program when paused
     WashingProgram currentProgram;                                   //  Washing program currently being processed
-    pair<double, double> temperatureInterval;                        //  Current temperature interval of supplied water
     pair<string, string> clothes;                                    //  Clothes currently loaded. Each clothing accessory has color and material it is made from
     time_t scheduledTime;                                            //  Date and time when washing program is started
+    map<string, WashingProgram*> customWashingPrograms;              //  Custom programs declared by user and saved in memory
 
 public:
     static vector<string> clothingMaterials;                         //  All possible clothing materials a washing machine can receive
@@ -56,4 +57,7 @@ public:
 
     // Get a string representing a json containing the scheduled time and the washing program
     string getScheduleAndProgram();
+
+    // Check if custom program has valid data
+    bool customProgramIsValid(WashingProgram washingProgram);
 };

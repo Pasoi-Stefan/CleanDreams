@@ -212,6 +212,11 @@ string WashingMachine::getScheduleAndProgram() {
     return responseBody.dump();
 }
 
+// TODO (Bleo) check each parameter is in an interval
+bool WashingMachine::customProgramIsValid(WashingProgram washingProgram) {
+    return true;
+}
+
 
 
 

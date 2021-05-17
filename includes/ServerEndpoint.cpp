@@ -64,6 +64,8 @@ void ServerEndpoint::scheduleProgram(const Rest::Request& request, Http::Respons
     try {
         json settingsValues = json::parse(request.body());
 
+        // TODO (Marian) check if customProgram is valid before code below
+
         // Check if "scheduledTime" and "standardProgram" or "customProgram" (not both) are set
         if(settingsValues["scheduledTime"] == nullptr) {
             response.send(Http::Code::Bad_Request, "Schedule time is not set.");
@@ -103,6 +105,8 @@ void ServerEndpoint::scheduleProgram(const Rest::Request& request, Http::Respons
             washingMachine.setCurrentProgram(*WashingMachine::standardWashingPrograms[programName]);
         }
 
+        // TODO (Marian) check if customProgram is string or object and treat cases differently
+
         // Set custom washing program, if key is given
         if(settingsValues["customProgram"] != nullptr) {
             WashingProgram customProgram(
@@ -112,7 +116,11 @@ void ServerEndpoint::scheduleProgram(const Rest::Request& request, Http::Respons
                         settingsValues["customProgram"]["detergent"]
                     );
 
-            washingMachine.setCurrentProgram(customProgram);
+            if (washingMachine.customProgramIsValid(customProgram))
+                washingMachine.setCurrentProgram(customProgram);
+            else
+                // TODO (Bleo) change error message below so it contains the actual invalid parameters
+                response.send(Http::Code::Bad_Request, "Invalid parameters for custom washing program.");
         }
 
 

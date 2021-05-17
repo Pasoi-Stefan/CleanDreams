@@ -7,7 +7,7 @@ private:
     //  Name of washing program
     double speed;               //  Spin speed
     double temperature;         //  Temperature of water used (in degrees Celsius)
-    int time;                //  Duration of current washing program (in minutes)
+    int time;                   //  Duration of current washing program (in minutes)
     double detergent;           //  Quantity of detergent used (in grams)
 
 public:
