@@ -1,7 +1,7 @@
 run: cmake-build-debug/cleandreams_washing_machine
 	./cmake-build-debug/cleandreams_washing_machine
 
-cmake-build-debug/cleandreams_washing_machine: cleandreams_washing_machine.cpp
+cmake-build-debug/cleandreams_washing_machine: cleandreams_washing_machine.cpp includes/WashingMachine.cpp includes/WashingMachine.h includes/ServerEndpoint.cpp includes/ServerEndpoint.h includes/WashingProgram.cpp includes/WashingProgram.h
 	cmake -B cmake-build-debug
 	make -C cmake-build-debug
 
