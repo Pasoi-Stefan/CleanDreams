@@ -2,6 +2,7 @@
 #include <nlohmann/json.hpp>
 #include <iomanip>
 #include <regex>
+#include <vector>
 
 #include "WashingProgram.h"
 
@@ -17,12 +18,12 @@ private:
     bool waterSupplyAvailable;                                       //  If water supply is available or not
     double elapsedTimeOnPause;                                       //  Elapsed time of washing program when paused
     WashingProgram currentProgram;                                   //  Washing program currently being processed
-    pair<string, string> clothes;                                    //  Clothes currently loaded. Each clothing accessory has color and material it is made from
+    vector<vector<string>> clothes;                            //  Clothes currently loaded. Each clothing accessory has color and material it is made from
     time_t scheduledTime;                                            //  Date and time when washing program is started
     map<string, WashingProgram*> customWashingPrograms;              //  Custom programs declared by user and saved in memory
 
 public:
-    static vector<string> clothingMaterials;                         //  All possible clothing materials a washing machine can receive
+    static vector<string> clothingFabrics;                         //  All possible clothing materials a washing machine can receive
     static vector<string> machineStatus;                             //  All possible statuses of a washing machine
     static map<string, WashingProgram*> standardWashingPrograms;     //  Standard washing programs available to the user
 
@@ -33,12 +34,17 @@ public:
 
         // Set a dummy value for current washing program
         currentProgram = *(new WashingProgram(0,0,0,0));
+        //customWashingPrograms["Medium"] = new WashingProgram(0,0,0,0);
 
         // Set a dummy value for scheduled time
         scheduledTime = 0;
     }
 
     void setCurrentProgram(const WashingProgram &currentProgram);
+
+    void setClothes(const vector<vector<string>> list);
+
+    string getRecommendedWashingProgram();
 
     // Change value for one of the settings
     int set(const string& name, const string& value);
@@ -60,4 +66,12 @@ public:
 
     // Check if custom program has valid data
     bool customProgramIsValid(WashingProgram washingProgram);
+
+    WashingProgram* getCustomWashingProgram(string programName) const;
+
+    int findColorInClothes(string color);
+
+    int findFabricInClothes(string fabric);
+
+    bool fabricInList(string fabric);
 };

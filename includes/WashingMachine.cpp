@@ -1,16 +1,106 @@
 #include "WashingMachine.h"
 
-vector<string> WashingMachine::clothingMaterials = {"Silk", "Wool", "Cotton", "Leather", "Linen", "Velvet", "Hemp"};
+vector<string> WashingMachine::clothingFabrics = {"Silk", "Wool", "Cotton", "Leather", "Velvet", "Synthetic"};
 vector<string> WashingMachine::machineStatus = {"Standby", "Pending", "Running" , "Paused", "Finished"};
 map<string, WashingProgram*> WashingMachine::standardWashingPrograms = {
-    {"Fast", new WashingProgram(700, 40, 30, 100)},
-    {"Normal", new WashingProgram(500, 50, 60, 150)},
-    {"Long", new WashingProgram(600, 60, 120, 200)}
+    {"Quick", new WashingProgram(1800, 40, 30, 80)},
+    {"Normal", new WashingProgram(1600, 60, 60, 140)},
+    {"Synthetic", new WashingProgram(1500, 40, 60, 130)},
+    {"Cotton", new WashingProgram(1800, 60, 60, 130)},
+    {"DelicateWool", new WashingProgram(1400, 40, 90, 110)},
+    {"DelicateLeather", new WashingProgram(1300, 30, 70, 130)},
+    {"Anti-allergy", new WashingProgram(1600, 90, 60, 100)},
+    {"Easy iron and anti-crease", new WashingProgram(1400, 60, 90, 150)},
+    {"Sport", new WashingProgram(1700, 90, 120, 200)}
+
 };
 
 
 void WashingMachine::setCurrentProgram(const WashingProgram &currentProgram) {
     WashingMachine::currentProgram = currentProgram;
+}
+
+int WashingMachine::findColorInClothes(string color) {
+    int cnt = 0;
+    for (auto pair : WashingMachine::clothes) {
+        if (pair.at(1) == color) {
+            cnt++;
+        }
+    }
+    return cnt;
+}
+
+int WashingMachine::findFabricInClothes(string fabric) {
+    int cnt = 0;
+    for (auto pair : WashingMachine::clothes) {
+        if (pair.at(0) == fabric) {
+            cnt++;
+        }
+    }
+    return cnt;
+}
+
+bool WashingMachine::fabricInList(string fabric) {
+    for (auto part : WashingMachine::clothingFabrics) {
+        if (fabric == part) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void WashingMachine::setClothes(const vector<vector<string>> list){
+    WashingMachine::clothes = list;
+}
+
+string WashingMachine::getRecommendedWashingProgram() {
+    string recommendedProgramName;
+    WashingProgram recommendedWashingProgram;
+    json responseBody;
+
+    if (WashingMachine::clothes.empty()) {
+        return "No clothes were introduced";
+    }
+
+    int length = WashingMachine::clothes.size();
+
+    if (WashingMachine::findColorInClothes("#FFFFFF") > 0 && length != WashingMachine::findColorInClothes("#FFFFFF")) {
+        return "There are white clothes combined with coloured ones. It is recommended to separate them.";
+    }
+
+    //Ratios for each fabric
+    float syntheticPart = (float) WashingMachine::findFabricInClothes("Synthetic") / length;
+    float cottonPart = (float) WashingMachine::findFabricInClothes("Cotton") / length;
+    float leatherPart = (float) WashingMachine::findFabricInClothes("Leather") / length;
+    float velvetPart = (float) WashingMachine::findFabricInClothes("Velvet") / length;
+    float woolPart = (float) WashingMachine::findFabricInClothes("Wool") / length;
+    float silkPart = (float) WashingMachine::findFabricInClothes("Silk") / length;
+
+    //Find best washing program based on the ratios above
+    if ((leatherPart > 0 || velvetPart > 0) && (woolPart + silkPart <= leatherPart + velvetPart)){
+        recommendedProgramName = "DelicateLeather";
+    } else if ((woolPart > 0 || silkPart > 0) && (woolPart + silkPart > leatherPart + velvetPart)){
+        recommendedProgramName = "DelicateWool";
+    } else if (syntheticPart > 0.5){
+        recommendedProgramName = "Synthetic";
+    } else if (cottonPart > 0.5) {
+        recommendedProgramName = "Cotton";
+    } else {
+        recommendedProgramName = "Normal";
+    }
+
+    recommendedWashingProgram = *standardWashingPrograms.at(recommendedProgramName);
+
+    //create response with name and program
+    responseBody["name"] = recommendedProgramName;
+    responseBody["program"] = {
+        {"speed", recommendedWashingProgram.getSpeed()},
+        {"temperature", recommendedWashingProgram.getTemperature()},
+        {"duration", recommendedWashingProgram.getTime()},
+        {"tetergent", recommendedWashingProgram.getDetergent()}
+    };
+
+    return responseBody.dump();
 }
 
 
@@ -215,6 +305,13 @@ string WashingMachine::getScheduleAndProgram() {
 // TODO (Bleo) check each parameter is in an interval
 bool WashingMachine::customProgramIsValid(WashingProgram washingProgram) {
     return true;
+}
+
+WashingProgram* WashingMachine::getCustomWashingProgram(string programName) const{
+    if(not WashingMachine::customWashingPrograms.count(programName)) {
+        return nullptr;
+    }
+    return WashingMachine::customWashingPrograms.at(programName);
 }
 
 
