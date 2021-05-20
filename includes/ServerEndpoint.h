@@ -31,6 +31,12 @@ private:
 
     // Get status of machine
     void getStatus(const Rest::Request& request, Http::ResponseWriter response);
+
+    string insertClothesMessage(json settingsValues);
+
+    void insertClothes(const Rest::Request& request, Http::ResponseWriter response);
+
+    void giveRecommendations(const Rest::Request& request, Http::ResponseWriter response);
 public:
     // Constructor
     explicit ServerEndpoint(Address addr)

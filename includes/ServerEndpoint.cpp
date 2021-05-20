@@ -11,6 +11,10 @@ void ServerEndpoint::setupRoutes() {
                       Rest::Routes::bind(&ServerEndpoint::scheduleProgram, this));
     Rest::Routes::Get(router, "/program",
                        Rest::Routes::bind(&ServerEndpoint::getStatus, this));
+    Rest::Routes::Post(router, "/clothes",
+                      Rest::Routes::bind(&ServerEndpoint::insertClothes, this));
+    Rest::Routes::Get(router, "/clothes",
+                       Rest::Routes::bind(&ServerEndpoint::giveRecommendations, this));
 }
 
 
@@ -82,6 +86,47 @@ void ServerEndpoint::scheduleProgram(const Rest::Request& request, Http::Respons
             return;
         }
 
+        WashingProgram customWashingProgram;
+
+        if (settingsValues["customProgram"] != nullptr) {
+
+            if(settingsValues["customProgram"].is_string()) {
+                string programName = settingsValues["customProgram"];
+                
+                if (washingMachine.getCustomWashingProgram(programName) != nullptr) {
+                    customWashingProgram = *(washingMachine.getCustomWashingProgram(programName));
+                } else {
+                    response.send(Http::Code::Bad_Request, "Could not find custom program with the given name.");
+                }
+
+            } else if (settingsValues["customProgram"].is_object()) {
+                if (settingsValues["customProgram"]["speed"] == nullptr ||
+                    settingsValues["customProgram"]["temperature"] == nullptr ||
+                    settingsValues["customProgram"]["time"] == nullptr ||
+                    settingsValues["customProgram"]["detergent"] == nullptr ) {
+                    response.send(Http::Code::Bad_Request, "At least one field of given custom program is missing or is spelled incorrectly");
+                    return;
+                
+                } else {
+                     WashingProgram customProgram(
+                        settingsValues["customProgram"]["speed"],
+                        settingsValues["customProgram"]["temperature"],
+                        settingsValues["customProgram"]["time"],
+                        settingsValues["customProgram"]["detergent"]
+                    );
+
+                    if (washingMachine.customProgramIsValid(customProgram))
+                        customWashingProgram = customProgram;
+                    else
+                        // TODO (Bleo) change error message below so it contains the actual invalid parameters
+                        response.send(Http::Code::Bad_Request, "Invalid parameters for custom washing program.");
+                }
+            } else {
+                response.send(Http::Code::Bad_Request, "Custom program must be string or object.");
+                return;
+            }
+        }
+
         // If schedule could not be set, use the code to write the reason for failure
         int code = washingMachine.setSchedule(settingsValues["scheduledTime"]);
 
@@ -98,31 +143,14 @@ void ServerEndpoint::scheduleProgram(const Rest::Request& request, Http::Respons
 
             // Check if the name of the washing program exists
             if(not WashingMachine::standardWashingPrograms.count(programName)) {
-                response.send(Http::Code::Bad_Request, "Could not find program with the given name.");
+                response.send(Http::Code::Bad_Request, "Could not find standard program with the given name.");
                 return;
             }
 
             washingMachine.setCurrentProgram(*WashingMachine::standardWashingPrograms[programName]);
         }
 
-        // TODO (Marian) check if customProgram is string or object and treat cases differently
-
-        // Set custom washing program, if key is given
-        if(settingsValues["customProgram"] != nullptr) {
-            WashingProgram customProgram(
-                        settingsValues["customProgram"]["speed"],
-                        settingsValues["customProgram"]["temperature"],
-                        settingsValues["customProgram"]["time"],
-                        settingsValues["customProgram"]["detergent"]
-                    );
-
-            if (washingMachine.customProgramIsValid(customProgram))
-                washingMachine.setCurrentProgram(customProgram);
-            else
-                // TODO (Bleo) change error message below so it contains the actual invalid parameters
-                response.send(Http::Code::Bad_Request, "Invalid parameters for custom washing program.");
-        }
-
+        washingMachine.setCurrentProgram(customWashingProgram);
 
     }
     catch (json::parse_error& e) {
@@ -135,9 +163,86 @@ void ServerEndpoint::scheduleProgram(const Rest::Request& request, Http::Respons
 
 void ServerEndpoint::getStatus(const Rest::Request& request, Http::ResponseWriter response) {
     response.headers()
-            .add<Http::Header::Server>("pistache/0.1")
-            .add<Http::Header::ContentType>(MIME(Application, Json));
+        .add<Http::Header::Server>("pistache/0.1")
+        .add<Http::Header::ContentType>(MIME(Application, Json));
 
     string settings = washingMachine.getScheduleAndProgram();
     response.send(Http::Code::Ok, settings);
+}
+
+string ServerEndpoint::insertClothesMessage(json settingsValues) {
+    if(settingsValues["clothesList"] == nullptr) {
+        //response.send(Http::Code::Bad_Request, "Request must contain clothes list");
+        return "Request must contain clothes list";
+    } else if (!settingsValues["clothesList"].is_array()) {
+        //response.send(Http::Code::Bad_Request, "Clothes list must be an array");
+        return "Clothes list must be an array";
+    }
+
+    vector<vector<string>> list;
+
+    for (json pair : settingsValues["clothesList"]) {
+        if (!pair.is_array()) {
+            //response.send(Http::Code::Bad_Request, "Elements inside clothes list must be arrays");
+            return "Elements inside clothes list must be arrays";
+        }
+
+        if (pair.size() != 2) {
+            //response.send(Http::Code::Bad_Request, "Arrays inside clothes list must contain only 2 elements");
+            return "Arrays inside clothes list must contain exactly 2 elements";
+        }
+
+        json fabric = pair.at(0);
+        json color = pair.at(1);
+
+        if (!fabric.is_string() || !color.is_string()) {
+            //response.send(Http::Code::Bad_Request, "Elements inside clothes list must contain only strings");
+            return "Elements inside clothes list must contain only strings";
+        }
+
+        if (!washingMachine.fabricInList(fabric)) {
+            //response.send(Http::Code::Bad_Request, "Fabric must be one of the following: Silk, Wool, Cotton, Leather, Velvet, Synthetic");
+            return "Fabric must be one of the following: Silk, Wool, Cotton, Leather, Velvet, Synthetic";
+        }
+
+        vector<string> props;
+        props.push_back(fabric);
+        props.push_back(color);
+        list.push_back(props);
+    }
+
+    washingMachine.setClothes(list);
+    return "Clothes were successfully inserted.";
+}
+
+void ServerEndpoint::insertClothes(const Rest::Request& request, Http::ResponseWriter response) {
+    response.headers()
+        .add<Http::Header::Server>("pistache/0.1")
+        .add<Http::Header::ContentType>(MIME(Text, Plain));
+
+    try {
+        json settingsValues = json::parse(request.body());
+
+        string result = ServerEndpoint::insertClothesMessage(settingsValues);
+        if (result != "Clothes were successfully inserted.") {
+            response.send(Http::Code::Bad_Request, result);
+            return;
+        }
+
+    } catch (json::parse_error& e) {
+        response.send(Http::Code::Bad_Request, e.what());
+        return;
+    }
+
+    response.send(Http::Code::Ok, "Clothes were successfully inserted.");
+}
+
+void ServerEndpoint::giveRecommendations(const Rest::Request& request, Http::ResponseWriter response) {
+    response.headers()
+        .add<Http::Header::Server>("pistache/0.1")
+        .add<Http::Header::ContentType>(MIME(Application, Json));
+
+    string washingProgram = washingMachine.getRecommendedWashingProgram();
+
+    response.send(Http::Code::Ok, washingProgram);
 }
