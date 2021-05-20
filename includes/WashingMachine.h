@@ -18,12 +18,13 @@ private:
     bool waterSupplyAvailable;                                       //  If water supply is available or not
     double elapsedTimeOnPause;                                       //  Elapsed time of washing program when paused
     WashingProgram currentProgram;                                   //  Washing program currently being processed
-    vector<vector<string>> clothes;                            //  Clothes currently loaded. Each clothing accessory has color and material it is made from
+    vector<vector<string>> clothes;                                  //  Clothes currently loaded. Each clothing accessory has color and material it is made from
     time_t scheduledTime;                                            //  Date and time when washing program is started
+    time_t pauseStartTime;                                           //  Date and time when washing program is paused
     map<string, WashingProgram*> customWashingPrograms;              //  Custom programs declared by user and saved in memory
 
 public:
-    static vector<string> clothingFabrics;                         //  All possible clothing materials a washing machine can receive
+    static vector<string> clothingFabrics;                           //  All possible clothing materials a washing machine can receive
     static vector<string> machineStatus;                             //  All possible statuses of a washing machine
     static map<string, WashingProgram*> standardWashingPrograms;     //  Standard washing programs available to the user
 
@@ -32,9 +33,12 @@ public:
         // Machine is initially turned off
         status = machineStatus[0];
 
+        // Set elapsedTimeOnPause to 0
+        elapsedTimeOnPause = 0.0;
+
         // Set a dummy value for current washing program
         currentProgram = *(new WashingProgram(0,0,0,0));
-        //customWashingPrograms["Medium"] = new WashingProgram(0,0,0,0);
+        // customWashingPrograms["Medium"] = new WashingProgram(0,0,0,0);
 
         // Set a dummy value for scheduled time
         scheduledTime = 0;
@@ -48,6 +52,11 @@ public:
 
     // Change value for one of the settings
     int set(const string& name, const string& value);
+
+    // get status
+    string getStatus() {
+        return status;
+    }
 
     // Get settings
     string get();
