@@ -213,7 +213,7 @@ string ServerEndpoint::insertClothesMessage(json settingsValues) {
         list.push_back(props);
     }
 
-    if (washingMachine.getStatus() != WashingMachine::machineStatus[1] || washingMachine.getStatus() != WashingMachine::machineStatus[2] || washingMachine.getStatus() != WashingMachine::machineStatus[3]) {
+    if (washingMachine.getStatus() != WashingMachine::machineStatus[1] && washingMachine.getStatus() != WashingMachine::machineStatus[2] && washingMachine.getStatus() != WashingMachine::machineStatus[3]) {
         washingMachine.setClothes(list);
     }
     else {
