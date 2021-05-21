@@ -1,7 +1,7 @@
 #include "WashingMachine.h"
 
 vector<string> WashingMachine::clothingFabrics = {"Silk", "Wool", "Cotton", "Leather", "Velvet", "Synthetic"};
-vector<string> WashingMachine::machineStatus = {"Standby", "Pending", "Running" , "Paused", "Finished"};
+vector<string> WashingMachine::machineStatus = {"Standby", "Pending", "Running" , "Paused", "Finished" , "Cancelled"};
 map<string, WashingProgram*> WashingMachine::standardWashingPrograms = {
     {"Quick", new WashingProgram(1800, 40, 30, 80)},
     {"Normal", new WashingProgram(1600, 60, 60, 140)},
@@ -107,8 +107,48 @@ string WashingMachine::getRecommendedWashingProgram() {
 int WashingMachine::set(const string& name, const string& value) {
     try {
         if (name == "status") {
-            status = value;
-            return 1;
+            if (value == "pause") {
+                // can pause a program only if it is in a state of Running
+                if (status == machineStatus[2]) {
+                    // set the state to Paused
+                    status = machineStatus[3];
+
+                    // get time when pause started
+                    pauseStartTime = time(nullptr);
+
+                    return 1;
+                }
+                return 0;
+            }
+            else if (value == "unpause") {
+                // can unpause a program only if it is in a state of Paused
+                if (status == machineStatus[3]) {
+                    // set the state to Running
+                    status = machineStatus[2];
+
+                    // get current time
+                    time_t curentTime = time(nullptr);
+
+                    elapsedTimeOnPause += curentTime - pauseStartTime;
+                    pauseStartTime = 0.0;
+                    return 1;
+                }
+                return 0;
+            }
+            else if (value == "cancel") {
+                // can cancel a program only if it is in a state of Pending, Running or Paused
+                if (status == machineStatus[1] || status == machineStatus[2] || status == machineStatus[3]) {
+                    // set the state to Cancelled
+                    status = machineStatus[5];
+                    
+                    scheduledTime = 0.0;
+                    currentProgram = *(new WashingProgram(0, 0, 0, 0));
+                    return 1;
+                }
+                return 0;
+            }
+
+            return 0;
         }
 
         return 0;
@@ -174,7 +214,7 @@ bool WashingMachine::dateAndTimeIsValid(struct tm tm) {
 
 optional<int> WashingMachine::updateStatus() {
     // statuses Standby and Finished are updated manually
-    if (status == WashingMachine::machineStatus[0] || status == WashingMachine::machineStatus[4])
+    if (status == WashingMachine::machineStatus[0] || status == WashingMachine::machineStatus[4] || status == WashingMachine::machineStatus[5])
         return optional<int>();
 
     // Get current date and time (number of seconds since 1st Jan 1970)
@@ -186,11 +226,11 @@ optional<int> WashingMachine::updateStatus() {
     // Update Pending status
     if (status == WashingMachine::machineStatus[1]) {
         // If machine is in the washing interval, then set status to Running
-        if(scheduledTime <= currentTime && currentTime <= scheduledTime + durationOfProgram)
+        if(scheduledTime <= currentTime && currentTime <= scheduledTime + durationOfProgram + elapsedTimeOnPause)
             status = WashingMachine::machineStatus[2];
 
         // If machine is past the washing interval, then set status to Finished
-        if(currentTime > scheduledTime + durationOfProgram)
+        if(currentTime > scheduledTime + durationOfProgram + elapsedTimeOnPause)
             status = WashingMachine::machineStatus[4];
     }
 
@@ -203,7 +243,13 @@ optional<int> WashingMachine::updateStatus() {
 
     // If current status is Running, calculate and return time remaining from duration of washing program (in minutes)
     if (status == WashingMachine::machineStatus[2]) {
-        int timeRemaining = (scheduledTime + durationOfProgram) - currentTime;
+        int timeRemaining = (scheduledTime + durationOfProgram + elapsedTimeOnPause) - currentTime;
+        return max(timeRemaining / 60, 0);
+    }
+
+    // If current status is Paused, calculate and return time remaining from duration of washing program (in minutes)
+    if (status == WashingMachine::machineStatus[3]) {
+        int timeRemaining = (scheduledTime + durationOfProgram + elapsedTimeOnPause) - pauseStartTime;
         return max(timeRemaining / 60, 0);
     }
 
@@ -258,6 +304,7 @@ int WashingMachine::setSchedule(string schedule) {
 
     // Set schedule
     scheduledTime = mktime(&dateAndTime);
+    elapsedTimeOnPause = 0.0;
 
     // Update status to pending
     status = WashingMachine::machineStatus[1];

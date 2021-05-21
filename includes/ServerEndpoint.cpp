@@ -86,7 +86,7 @@ void ServerEndpoint::scheduleProgram(const Rest::Request& request, Http::Respons
             return;
         }
 
-        WashingProgram customWashingProgram;
+        WashingProgram customWashingProgram = *(new WashingProgram(0, 0, 0, 0));
 
         if (settingsValues["customProgram"] != nullptr) {
 
@@ -150,7 +150,9 @@ void ServerEndpoint::scheduleProgram(const Rest::Request& request, Http::Respons
             washingMachine.setCurrentProgram(*WashingMachine::standardWashingPrograms[programName]);
         }
 
-        washingMachine.setCurrentProgram(customWashingProgram);
+        if (customWashingProgram != *(new WashingProgram(0, 0, 0, 0))) {
+            washingMachine.setCurrentProgram(customWashingProgram);
+        }
 
     }
     catch (json::parse_error& e) {
@@ -211,7 +213,13 @@ string ServerEndpoint::insertClothesMessage(json settingsValues) {
         list.push_back(props);
     }
 
-    washingMachine.setClothes(list);
+    if (washingMachine.getStatus() != WashingMachine::machineStatus[1] && washingMachine.getStatus() != WashingMachine::machineStatus[2] && washingMachine.getStatus() != WashingMachine::machineStatus[3]) {
+        washingMachine.setClothes(list);
+    }
+    else {
+        return "Can't change clothes while machine is working ):";
+    }
+    
     return "Clothes were successfully inserted.";
 }
 
