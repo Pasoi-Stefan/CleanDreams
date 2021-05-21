@@ -172,6 +172,20 @@ string WashingMachine::get() {
 }
 
 
+json WashingMachine::getEnvironment() {
+    // https://github.com/nlohmann/json#examples
+    // First example
+    cout << status << '\n';
+    json responseBody = {
+            {"status", status},
+            {"waterSupplyAvailable", waterSupplyAvailable},
+            {"impurity", impurity}
+    };
+
+    return responseBody;
+}
+
+
 bool WashingMachine::dateAndTimeIsValid(struct tm tm) {
     // Get parameters from struct
     int day = tm.tm_mday;

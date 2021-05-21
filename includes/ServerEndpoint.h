@@ -26,6 +26,12 @@ private:
     // Get all settings
     void getSettings(const Rest::Request& request, Http::ResponseWriter response);
 
+    //
+    void setEnvironment(const Rest::Request& request, Http::ResponseWriter response);
+
+    //
+    void ServerEndpoint::getEnvironment(const Rest::Request& request, Http::ResponseWriter response);
+
     // Schedule a washing program
     void scheduleProgram(const Rest::Request& request, Http::ResponseWriter response);
 

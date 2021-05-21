@@ -15,6 +15,10 @@ void ServerEndpoint::setupRoutes() {
                       Rest::Routes::bind(&ServerEndpoint::insertClothes, this));
     Rest::Routes::Get(router, "/clothes",
                        Rest::Routes::bind(&ServerEndpoint::giveRecommendations, this));
+    Rest::Routes::Post(router, "/environment",
+                       Rest::Routes::bind(&ServerEndpoint::setEnvironment, this));
+    Rest::Routes::Get(router, "/environment",
+                      Rest::Routes::bind(&ServerEndpoint::getEnvironment, this));
 }
 
 
@@ -57,6 +61,76 @@ void ServerEndpoint::getSettings(const Rest::Request& request, Http::ResponseWri
             .add<Http::Header::ContentType>(MIME(Application, Json));
 
     response.send(Http::Code::Ok, settings);
+}
+
+
+void ServerEndpoint::setEnvironment(const Rest::Request& request, Http::ResponseWriter response) {
+    response.headers()
+            .add<Http::Header::Server>("pistache/0.1")
+            .add<Http::Header::ContentType>(MIME(Text, Plain));
+
+    try {
+        json environment = washingMachine.getEnvironment();
+        json environmentValues = json::parse(request.body());
+
+        // https://nlohmann.github.io/json/features/iterators/
+        // The for loop for processing each (key, value) pair from a json
+
+        double impurity = 0.0;
+        bool waterSupply = true;
+        int parameters = 0;
+        //get impurity and waterSupply out of request
+        for (auto& [key, val] : environmentValues.items()) {
+            if(key == "waterSupplyAvailable"){
+                parameters++;
+                waterSupply = bool(val);
+            }
+
+            if(key == "impurity"){
+                parameters++;
+                impurity = double(val);
+            }
+        }
+        //if both parameters were provided
+        if(parameters == 2) {
+            //if running and one of two conditions not met
+            if ((waterSupply == false || impurity > 1) && environment["status"] == "Running") {
+                washingMachine.set("status", "pause");
+            }
+            //if paused and both conditions met
+            if ((waterSupply == true && impurity < 1) && environment["status"] == "Paused") {
+                washingMachine.set("status", "unpause");
+            }
+        }
+        //if one of the parameters was not provided
+        else {
+            response.send(Http::Code::Bad_Request, "Either water supply or impurity not provided");
+            return;
+        }
+    }
+    catch (json::parse_error& e) {
+        response.send(Http::Code::Bad_Request, e.what());
+        return;
+    }
+
+    response.send(Http::Code::Ok, "Status updated successfully.");
+}
+
+
+void ServerEndpoint::getEnvironment(const Rest::Request& request, Http::ResponseWriter response) {
+    json environment = washingMachine.getEnvironment();
+
+    response.headers()
+            .add<Http::Header::Server>("pistache/0.1")
+            .add<Http::Header::ContentType>(MIME(Application, Json));
+
+    if(!bool(environment["waterSupplyAvailable"])){
+        response.send(Http::Code::Ok, "Water supply not available.");
+    }
+
+    if(double(environment["impurity"]) > 1 ){
+        response.send(Http::Code::Ok, "Water impurity too high");
+    }
 }
 
 
