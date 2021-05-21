@@ -126,11 +126,15 @@ void ServerEndpoint::getEnvironment(const Rest::Request& request, Http::Response
 
     if(!bool(environment["waterSupplyAvailable"])){
         response.send(Http::Code::Ok, "Water supply not available.");
+        return;
     }
 
     if(double(environment["impurity"]) > 1 ){
         response.send(Http::Code::Ok, "Water impurity too high");
+        return;
     }
+
+    response.send(Http::Code::Ok, "Detergent quantity: " + environment["detergentCache"]);
 }
 
 

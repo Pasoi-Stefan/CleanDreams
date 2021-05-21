@@ -179,7 +179,8 @@ json WashingMachine::getEnvironment() {
     json responseBody = {
             {"status", status},
             {"waterSupplyAvailable", waterSupplyAvailable},
-            {"impurity", impurity}
+            {"impurity", impurity},
+            {"detergentCache", detergentCache}
     };
 
     return responseBody;
