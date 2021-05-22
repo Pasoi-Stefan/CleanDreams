@@ -30,15 +30,13 @@ private:
     void setEnvironment(const Rest::Request& request, Http::ResponseWriter response);
 
     //
-    void ServerEndpoint::getEnvironment(const Rest::Request& request, Http::ResponseWriter response);
+    void getEnvironment(const Rest::Request& request, Http::ResponseWriter response);
 
     // Schedule a washing program
     void scheduleProgram(const Rest::Request& request, Http::ResponseWriter response);
 
     // Get status of machine
     void getStatus(const Rest::Request& request, Http::ResponseWriter response);
-
-    string insertClothesMessage(json settingsValues);
 
     void insertClothes(const Rest::Request& request, Http::ResponseWriter response);
 

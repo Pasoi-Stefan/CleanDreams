@@ -33,15 +33,20 @@ public:
         // Machine is initially turned off
         status = machineStatus[0];
 
+        // Set starting environment
+        waterSupplyAvailable = true;
+        impurity = 0;
+        detergentCache = 0;
+
         // Set elapsedTimeOnPause to 0
         elapsedTimeOnPause = 0.0;
+        scheduledTime = 0;
 
         // Set a dummy value for current washing program
         currentProgram = *(new WashingProgram(0,0,0,0));
         // customWashingPrograms["Medium"] = new WashingProgram(0,0,0,0);
 
         // Set a dummy value for scheduled time
-        scheduledTime = 0;
     }
 
     void setCurrentProgram(const WashingProgram &currentProgram);
@@ -83,4 +88,14 @@ public:
     int findFabricInClothes(string fabric);
 
     bool fabricInList(string fabric);
+
+    string insertClothesMessage(json settingsValues);
+
+    json getEnvironment();
+
+    string setEnvironmentMessage(json environment);
+
+    string scheduleProgramMessage(json settingsValues);
+
+    string setSettingsMessage(json settingsValues);
 };
