@@ -492,19 +492,19 @@ string WashingMachine::insertClothesMessage(json settingsValues) {
             return "Fabric must be one of the following: Silk, Wool, Cotton, Leather, Velvet, Synthetic";
         }
 
-        /*regex format("#[0-9A-F]{6}");
+        regex format("#[0-9A-F]{6}");
 
         // Get matches from regex
         smatch matches;
 
-        string colorString = to_string(color);
+        string colorString = color;
 
         regex_match(colorString, matches, format);
 
         // If there are no matches, the schedule cannot be set
         if (matches.empty()){
              return "Color is incorrect";
-        }*/
+        }
 
         vector<string> props;
         props.push_back(fabric);
