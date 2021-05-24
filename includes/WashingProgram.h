@@ -11,7 +11,7 @@ using namespace std;
 #define MAX_TEMPERATURE 90
 #define MIN_DETERGENT 50
 #define MAX_DETERGENT 250
-#define MIN_TIME 30
+#define MIN_TIME 10
 #define MAX_TIME 120
 
 
