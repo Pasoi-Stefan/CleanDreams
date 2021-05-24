@@ -122,6 +122,8 @@ string WashingMachine::getRecommendedWashingProgram() {
 
 
 int WashingMachine::set(const string& name, const string& value) {
+    updateStatus();
+
     try {
         if (name == "status") {
             if (value == "pause") {
@@ -202,7 +204,7 @@ string WashingMachine::setSettingsMessage(json settingsValues) {
 string WashingMachine::get() {
     // https://github.com/nlohmann/json#examples
     // First example
-    cout << status << '\n';
+
     json responseBody = {
             {"status", status}
     };
@@ -211,6 +213,8 @@ string WashingMachine::get() {
 }
 
 string WashingMachine::setEnvironmentMessage(json environment) {
+    updateStatus();
+
     double newImpurity = 0.0;
     bool newWaterSupply = true;
     double newDetergentCache = 0.0;
@@ -242,8 +246,6 @@ string WashingMachine::setEnvironmentMessage(json environment) {
             } else {
                 return "Detergent cache must be double";
             }
-
-            cout<<newDetergentCache<<"\n";
         }
     }
     //if both parameters were provided
@@ -252,16 +254,16 @@ string WashingMachine::setEnvironmentMessage(json environment) {
         detergentCache = newDetergentCache;
         waterSupplyAvailable = newWaterSupply;
         impurity = newImpurity;
-        if ((newWaterSupply == false || newImpurity > 5) && status == WashingMachine::machineStatus[2]) {
+        if ((newWaterSupply == false || newImpurity > MAX_IMPURITY) && status == WashingMachine::machineStatus[2]) {
             set("status", "pause");
         }
 
-        if ((newWaterSupply == false || newImpurity > 5) && status == WashingMachine::machineStatus[1]) {
+        if ((newWaterSupply == false || newImpurity > MAX_IMPURITY) && status == WashingMachine::machineStatus[1]) {
             set("status", "cancel");
         }
 
         //if paused and both conditions met
-        if ((newWaterSupply == true && newImpurity < 5) && status == WashingMachine::machineStatus[3]) {
+        if ((newWaterSupply == true && newImpurity <= MAX_IMPURITY) && status == WashingMachine::machineStatus[3]) {
             set("status", "unpause");
         }
         return "Environment updated successfully.";
@@ -273,7 +275,7 @@ string WashingMachine::setEnvironmentMessage(json environment) {
 string WashingMachine::getEnvironment() {
     // https://github.com/nlohmann/json#examples
     // First example
-    cout << status << '\n';
+
     json responseBody = {
             {"status", status},
             {"waterSupplyAvailable", waterSupplyAvailable},
@@ -480,6 +482,8 @@ bool WashingMachine::isAlreadyExistent(string programName) const{
 }
 
 string WashingMachine::insertClothesMessage(json settingsValues) {
+    updateStatus();
+
     if(settingsValues["clothesList"] == nullptr) {
         //response.send(Http::Code::Bad_Request, "Request must contain clothes list");
         return "Request must contain clothes list";
@@ -620,6 +624,10 @@ string WashingMachine::scheduleProgramMessage(json settingsValues) {
         customWashingProgram = (*WashingMachine::standardWashingPrograms[programName]);
     }
 
+    if (customWashingProgram.getDetergent() > detergentCache) {
+        return "There is not enough detergent in cache for this washing program.";
+    }
+
     // If schedule could not be set, use the code to write the reason for failure
     int code = setSchedule(settingsValues["scheduledTime"]);
 
@@ -640,10 +648,6 @@ string WashingMachine::scheduleProgramMessage(json settingsValues) {
             //response.send(Http::Code::Bad_Request, "Schedule must be set for a date in the future.");
             return "Schedule must be set for a date in the future.";
         }
-    }
-
-    if (customWashingProgram.getDetergent() > detergentCache) {
-        return "There is not enough detergent in cache for this washing program.";
     }
 
     detergentCache -= customWashingProgram.getDetergent();

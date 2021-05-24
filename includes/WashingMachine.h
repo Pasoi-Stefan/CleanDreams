@@ -13,6 +13,7 @@ using namespace std;
 using namespace nlohmann;
 
 #define CUSTOM_PROGRAMS_FILE "../custom_programs.txt"
+#define MAX_IMPURITY 5
 
 // Class with settings for washing machine
 class WashingMachine {
@@ -39,19 +40,18 @@ public:
         status = machineStatus[0];
 
         // Set starting environment
-        waterSupplyAvailable = true;
+        waterSupplyAvailable = false;
         impurity = 0;
         detergentCache = 0;
 
         // Set elapsedTimeOnPause to 0
         elapsedTimeOnPause = 0.0;
+
+        // Set a dummy value for scheduled time
         scheduledTime = 0;
 
         // Set a dummy value for current washing program
         currentProgram = *(new WashingProgram(0,0,0,0));
-        // customWashingPrograms["Medium"] = new WashingProgram(0,0,0,0);
-
-        // Set a dummy value for scheduled time
 
         // Read custom programs already existent
         readCustomPrograms();
