@@ -16,6 +16,23 @@ map<string, WashingProgram*> WashingMachine::standardWashingPrograms = {
 };
 
 
+void WashingMachine::readCustomPrograms() {
+    std::ifstream customProgramsIn(CUSTOM_PROGRAMS_FILE);
+    string programName;
+    while (customProgramsIn >> programName) {
+        if (programName.size() < 1) {
+            continue;
+        }
+        double _speed;
+        double _temperature;
+        int _time;
+        double _detergent;
+        customProgramsIn >> _speed >> _temperature >> _time >> _detergent;
+        WashingMachine::customWashingPrograms.insert(make_pair(programName, new WashingProgram(_speed, _temperature, _time, _detergent)));
+    }
+    customProgramsIn.close();
+}
+
 void WashingMachine::setCurrentProgram(const WashingProgram &currentProgram) {
     WashingMachine::currentProgram = currentProgram;
 }
@@ -447,14 +464,19 @@ string WashingMachine::getScheduleAndProgram() {
 
 // TODO (Bleo) check each parameter is in an interval
 bool WashingMachine::customProgramIsValid(WashingProgram washingProgram) {
-    return true;
+    return washingProgram.isValid();
 }
 
 WashingProgram* WashingMachine::getCustomWashingProgram(string programName) const{
     if(not WashingMachine::customWashingPrograms.count(programName)) {
         return nullptr;
     }
+
     return WashingMachine::customWashingPrograms.at(programName);
+}
+
+bool WashingMachine::isAlreadyExistent(string programName) const{
+    return (WashingMachine::customWashingPrograms.count(programName) > 0);
 }
 
 string WashingMachine::insertClothesMessage(json settingsValues) {
@@ -629,6 +651,54 @@ string WashingMachine::scheduleProgramMessage(json settingsValues) {
 
 
     return "Program scheduled successfully.";
+}
+
+void WashingMachine::saveCustomProgram(string programName, WashingProgram washingProgram) {
+    std::ofstream customProgramsFile(CUSTOM_PROGRAMS_FILE, ios::app);
+    customProgramsFile << programName << '\n';
+    washingProgram.print(customProgramsFile);
+    customProgramsFile.close();
+}
+
+void WashingMachine::addCustomProgram(string programName, WashingProgram washingProgram) {
+    WashingMachine::customWashingPrograms
+    .insert(make_pair(programName, new WashingProgram(
+            washingProgram.getSpeed(),
+            washingProgram.getTemperature(),
+            washingProgram.getTime(),
+            washingProgram.getDetergent())));
+    saveCustomProgram(programName, washingProgram);
+}
+
+string WashingMachine::setCustomWashingProgram(json programValues) {
+    string programName = programValues["programName"];
+    if (isAlreadyExistent(programName)) {
+        return "Program already exists.";
+    }
+
+    if (programValues["speed"] == nullptr ||
+        programValues["temperature"] == nullptr ||
+        programValues["time"] == nullptr ||
+        programValues["detergent"] == nullptr ) {
+        //response.send(Http::Code::Bad_Request, "At least one field of given custom program is missing or is spelled incorrectly");
+        return "At least one field of given custom program is missing or is spelled incorrectly";
+    }
+
+    WashingProgram customProgram(
+            programValues["speed"],
+            programValues["temperature"],
+            programValues["time"],
+            programValues["detergent"]
+    );
+
+    if (customProgramIsValid(customProgram)) {
+        addCustomProgram(programName, customProgram);
+        return "Custom program added successfully!";
+    } else{
+        //response.send(Http::Code::Bad_Request, "Invalid parameters for custom washing program.");
+        return "Invalid parameters for custom washing program.";
+    }
+
 }
 
 

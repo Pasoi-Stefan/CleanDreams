@@ -1,8 +1,19 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>
 
 using namespace std;
+
+#define MIN_SPEED 800
+#define MAX_SPEED 2800
+#define MIN_TEMPERATURE 20
+#define MAX_TEMPERATURE 90
+#define MIN_DETERGENT 50
+#define MAX_DETERGENT 250
+#define MIN_TIME 30
+#define MAX_TIME 120
+
 
 class WashingProgram {
 private:
@@ -27,6 +38,12 @@ public:
     int getTime() const;
 
     double getDetergent() const;
+
+    bool isValid() const;
+
+    void print(ostream& out);
+
+    void read(istream& in);
 
     bool operator==(const WashingProgram &rhs) const;
 

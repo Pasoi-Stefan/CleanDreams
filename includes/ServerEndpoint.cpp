@@ -11,6 +11,8 @@ void ServerEndpoint::setupRoutes() {
                       Rest::Routes::bind(&ServerEndpoint::scheduleProgram, this));
     Rest::Routes::Get(router, "/program",
                        Rest::Routes::bind(&ServerEndpoint::getStatus, this));
+    Rest::Routes::Post(router, "/addCustom",
+                      Rest::Routes::bind(&ServerEndpoint::addCustomProgram, this));
     Rest::Routes::Post(router, "/clothes",
                       Rest::Routes::bind(&ServerEndpoint::insertClothes, this));
     Rest::Routes::Get(router, "/clothes",
@@ -143,6 +145,29 @@ void ServerEndpoint::getStatus(const Rest::Request& request, Http::ResponseWrite
 
     string settings = washingMachine.getScheduleAndProgram();
     response.send(Http::Code::Ok, settings);
+}
+
+void ServerEndpoint::addCustomProgram(const Rest::Request& request, Http::ResponseWriter response) {
+    response.headers()
+            .add<Http::Header::Server>("pistache/0.1")
+            .add<Http::Header::ContentType>(MIME(Application, Json));
+
+    try {
+        json programValues = json::parse(request.body());
+
+        string result = washingMachine.setCustomWashingProgram(programValues);
+
+        if (result != "Custom program added successfully!") {
+            response.send(Http::Code::Bad_Request, result);
+            return;
+        }
+
+    } catch (json::parse_error& e){
+        response.send(Http::Code::Bad_Request, e.what());
+        return;
+    }
+
+    response.send(Http::Code::Ok, "Custom program added successfully!");
 }
 
 void ServerEndpoint::insertClothes(const Rest::Request& request, Http::ResponseWriter response) {
