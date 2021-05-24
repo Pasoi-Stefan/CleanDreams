@@ -28,6 +28,7 @@ void MqttSubscriber::onConnect(struct mosquitto *mosq, void *obj, int connection
     mosquitto_subscribe(mosq, NULL, "status-request", 0);
     mosquitto_subscribe(mosq, NULL, "environment-request", 0);
     mosquitto_subscribe(mosq, NULL, "recommandations-request", 0);
+    mosquitto_subscribe(mosq, NULL, "custom-program", 0);
 }
 
 void MqttSubscriber::onMessage(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {
@@ -54,6 +55,10 @@ void MqttSubscriber::onMessage(struct mosquitto *mosq, void *obj, const struct m
             result = washingMachine.insertClothesMessage(settingsValues);
             mosquitto_publish(mosq, NULL, (topic + "-output").c_str(), result.length(), result.c_str(), 0, false);
         }
+        else if (topic == "custom-program") {
+            result = washingMachine.setCustomWashingProgram(settingsValues);
+            mosquitto_publish(mosq, NULL, "program-output", result.length(), result.c_str(), 0, false);
+        }
         else if (topic == "settings-request") {
             result = washingMachine.get();
             mosquitto_publish(mosq, NULL, "settings-output", result.length(), result.c_str(), 0, true);
@@ -68,7 +73,7 @@ void MqttSubscriber::onMessage(struct mosquitto *mosq, void *obj, const struct m
         }
         else if (topic == "recommandations-request") {
             result = washingMachine.getRecommendedWashingProgram();
-            mosquitto_publish(mosq, NULL, "recommandations-output", result.length(), result.c_str(), 0, true);
+            mosquitto_publish(mosq, NULL, "recommandations-output", result.length(), result.c_str(), 0, false);
         }
     }
     catch (json::parse_error& e) {

@@ -23,3 +23,7 @@ install:
 	# https://github.com/nlohmann/json/issues/1703#issuecomment-687867182 - how to install nlohmann_json
 	sudo apt install nlohmann-json3-dev
 
+	# https://mosquitto.org/download/ - install mosquitto
+	sudo apt-add-repository ppa:mosquitto-dev/mosquitto-ppa
+	sudo apt-get update
+	sudo apt install mosquitto mosquitto-clients libmosquitto-dev
