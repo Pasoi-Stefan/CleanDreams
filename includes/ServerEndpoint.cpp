@@ -5,8 +5,6 @@ void ServerEndpoint::setupRoutes() {
     // Generally say that when http://localhost:9080/ready is called, the handleReady function should be called
     Rest::Routes::Post(router, "/settings",
                        Rest::Routes::bind(&ServerEndpoint::setSettings, this));
-    Rest::Routes::Get(router, "/settings",
-                      Rest::Routes::bind(&ServerEndpoint::getSettings, this));
     Rest::Routes::Post(router, "/program",
                       Rest::Routes::bind(&ServerEndpoint::scheduleProgram, this));
     Rest::Routes::Get(router, "/program",
@@ -49,18 +47,6 @@ void ServerEndpoint::setSettings(const Rest::Request& request, Http::ResponseWri
 
     response.send(Http::Code::Ok, "Settings updated successfully.");
 }
-
-
-void ServerEndpoint::getSettings(const Rest::Request& request, Http::ResponseWriter response) {
-    string settings = washingMachine.get();
-
-    response.headers()
-            .add<Http::Header::Server>("pistache/0.1")
-            .add<Http::Header::ContentType>(MIME(Application, Json));
-
-    response.send(Http::Code::Ok, settings);
-}
-
 
 void ServerEndpoint::setEnvironment(const Rest::Request& request, Http::ResponseWriter response) {
     response.headers()

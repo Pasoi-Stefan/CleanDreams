@@ -200,18 +200,6 @@ string WashingMachine::setSettingsMessage(json settingsValues) {
     } return "Settings updated successfully.";
 }
 
-
-string WashingMachine::get() {
-    // https://github.com/nlohmann/json#examples
-    // First example
-
-    json responseBody = {
-            {"status", status}
-    };
-
-    return responseBody.dump();
-}
-
 string WashingMachine::setEnvironmentMessage(json environment) {
     updateStatus();
 
