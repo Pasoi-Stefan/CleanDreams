@@ -1,0 +1,201 @@
+{
+    "device-name": "CleanDreams",
+    "device-type": "Washing Machine",
+    "buffers-count": 8,
+    "input_buffers": {
+        "program": {
+            "token_delimitators": "",
+            "protocol": "HTTP",
+            "method": "POST",
+            "prefix": "localhost:9080/program",
+            "buffer-tokens": [
+                {
+                    "name": "scheduledTime",
+                    "description": "Time when the washing program is scheduled to start",
+                    "token_type": "string",
+                    "byte_size": 256,
+                    "regex-rule": "([0-9]{2})\\.([0-9]{2})\\.([0-9]{4}) ([0-9]{2}):([0-9]{2})",
+                    "optional": false
+                },
+                {
+                    "name": "standardProgram",
+                    "description": "Name of one of the default washing programs",
+                    "token_type": "string",
+                    "byte_size": 256,
+                    "regex-rule": "[a-zA-Z]*",
+                    "optional": true
+                },
+                {
+                    "name": "customProgram",
+                    "description": "Name of exsting custom washing program or options for a new one",
+                    "token_type": "string",
+                    "byte_size": 256,
+                    "regex-rule": "[a-zA-Z]*|{\"speed\":[1-9][0-9]*,\"temperature\":[1-9][0-9]*,\"time\":[1-9][0-9]*,\"detergent\":[1-9][0-9]*}",
+                    "optional": true
+                }
+            ]
+        },
+        "environment": {
+            "token_delimitators": "",
+            "protocol": "HTTP",
+            "method": "POST",
+            "prefix": "localhost:9080/environment",
+            "buffer-tokens": [
+                {
+                    "name": "waterSupplyAvailable",
+                    "description": "Water supply availability",
+                    "token_type": "string",
+                    "byte_size": 256,
+                    "regex-rule": "true|false",
+                    "optional": false
+                },
+                {
+                    "name": "impurity",
+                    "description": "Water impurity",
+                    "token_type": "string",
+                    "byte_size": 256,
+                    "regex-rule": "[0-9]+(\\.[0-9]{1,2})?",
+                    "optional": false
+                },
+                {
+                    "name": "detergentCache",
+                    "description": "Detergent cache",
+                    "token_type": "string",
+                    "byte_size": 256,
+                    "regex-rule": "[1-9][0-9]*",
+                    "optional": false
+                }
+            ]
+        },
+        "clothes": {
+            "token_delimitators": "",
+            "protocol": "HTTP",
+            "method": "POST",
+            "prefix": "localhost:9080/clothes",
+            "buffer-tokens": [
+                {
+                    "name": "clothesList",
+                    "description": "List of fabric and color of inserted clothes",
+                    "token_type": "string",
+                    "byte_size": 256,
+                    "regex-rule": "\\[(\\[\"[a-zA-Z]*\",\"#[0-9A-F]{6}\"\\],)*\\[\"[a-zA-Z]*\",\"#[0-9A-F]{6}\"\\]\\]|\\[\\]",
+                    "optional": false
+                }
+            ]
+        },
+        "settings": {
+            "token_delimitators": "",
+            "protocol": "HTTP",
+            "method": "POST",
+            "prefix": "localhost:9080/settings",
+            "buffer-tokens": [
+                {
+                    "name": "status",
+                    "description": "Washing machine status",
+                    "token_type": "string",
+                    "byte_size": 256,
+                    "regex-rule": "cancel|pause|unpause",
+                    "optional": false
+                }
+            ]
+        },
+        "addCustom": {
+            "token_delimitators": "",
+            "protocol": "HTTP",
+            "method": "POST",
+            "prefix": "localhost:9080/addCustom",
+            "buffer-tokens": [
+                {
+                    "name": "programName",
+                    "description": "Custom program name",
+                    "token_type": "string",
+                    "byte_size": 256,
+                    "regex-rule": "[a-zA-Z0-9]+",
+                    "optional": false
+                },
+                {
+                    "name": "speed",
+                    "description": "Washing machine spinning speed",
+                    "token_type": "string",
+                    "byte_size": 256,
+                    "regex-rule": "[1-9][0-9]*",
+                    "optional": false
+                },
+                {
+                    "name": "temperature",
+                    "description": "Water temperature (in Celsius degrees",
+                    "token_type": "string",
+                    "byte_size": 256,
+                    "regex-rule": "[1-9][0-9]*",
+                    "optional": false
+                },
+                {
+                    "name": "time",
+                    "description": "Washing duration (in minutes)",
+                    "token_type": "string",
+                    "byte_size": 256,
+                    "regex-rule": "[1-9][0-9]*",
+                    "optional": false
+                },
+                {
+                    "name": "detergent",
+                    "description": "Detergent quantity needed for the program",
+                    "token_type": "string",
+                    "byte_size": 256,
+                    "regex-rule": "[1-9][0-9]*",
+                    "optional": false
+                }
+            ]
+        }
+    },
+    "output_buffers": {
+        "program": {
+            "token_delimitators": "",
+            "protocol": "HTTP",
+            "method": "GET",
+            "prefix": "localhost:9080",
+            "buffer-tokens": [
+                {
+                    "name": "Get program",
+                    "description": "Command that returns the washing program",
+                    "token-type": "string",
+                    "byte-size": 256,
+                    "regex-rule": "/program",
+                    "optional": false
+                }
+            ]
+        },
+        "recommandations": {
+            "token_delimitators": "",
+            "protocol": "HTTP",
+            "method": "GET",
+            "prefix": "localhost:9080",
+            "buffer-tokens": [
+                {
+                    "name": "Get recommandations",
+                    "description": "Command that returns the recommended washing program, or a warning",
+                    "token-type": "string",
+                    "byte-size": 256,
+                    "regex-rule": "/clothes",
+                    "optional": false
+                }
+            ]
+        },
+        "environment": {
+            "token_delimitators": "",
+            "protocol": "HTTP",
+            "method": "GET",
+            "prefix": "localhost:9080",
+            "buffer-tokens": [
+                {
+                    "name": "Get environment",
+                    "description": "Command that returns the water supply, impurity and detergent",
+                    "token-type": "string",
+                    "byte-size": 256,
+                    "regex-rule": "/environment",
+                    "optional": false
+                }
+            ]
+        }
+    }
+}
