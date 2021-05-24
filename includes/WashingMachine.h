@@ -3,11 +3,14 @@
 #include <iomanip>
 #include <regex>
 #include <vector>
+#include <fstream>
 
 #include "WashingProgram.h"
 
 using namespace std;
 using namespace nlohmann;
+
+#define CUSTOM_PROGRAMS_FILE "../custom_programs.txt"
 
 // Class with settings for washing machine
 class WashingMachine {
@@ -47,7 +50,12 @@ public:
         // customWashingPrograms["Medium"] = new WashingProgram(0,0,0,0);
 
         // Set a dummy value for scheduled time
+
+        // Read custom programs already existent
+        readCustomPrograms();
     }
+
+    void readCustomPrograms();
 
     void setCurrentProgram(const WashingProgram &currentProgram);
 
@@ -82,6 +90,14 @@ public:
     bool customProgramIsValid(WashingProgram washingProgram);
 
     WashingProgram* getCustomWashingProgram(string programName) const;
+
+    string setCustomWashingProgram(json programValues);
+
+    bool isAlreadyExistent(string programName) const;
+
+    void addCustomProgram(string programName, WashingProgram washingProgram);
+
+    void saveCustomProgram(string programName, WashingProgram washingProgram);
 
     int findColorInClothes(string color);
 

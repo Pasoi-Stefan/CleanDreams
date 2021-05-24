@@ -41,6 +41,26 @@ WashingProgram& WashingProgram::operator=(const WashingProgram &rhs) {
     return *this;
 }
 
+bool WashingProgram::isValid() const {
+    return !(detergent < MIN_DETERGENT ||
+    detergent > MAX_DETERGENT ||
+    speed < MIN_SPEED ||
+    speed > MAX_SPEED ||
+    temperature > MAX_TEMPERATURE ||
+    temperature < MIN_TEMPERATURE ||
+    time < MIN_TIME ||
+    time > MAX_TIME);
+}
+
+void WashingProgram::print(ostream& out) {
+    out << speed << ' ' << temperature << ' ';
+    out << time << ' ' << detergent << '\n';
+}
+
+void WashingProgram::read(istream& in) {
+    in >> speed >> temperature >> time >> detergent;
+}
+
 
 
 

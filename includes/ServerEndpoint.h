@@ -41,6 +41,9 @@ private:
     void insertClothes(const Rest::Request& request, Http::ResponseWriter response);
 
     void giveRecommendations(const Rest::Request& request, Http::ResponseWriter response);
+
+    void addCustomProgram(const Rest::Request& request, Http::ResponseWriter response);
+
 public:
     // Constructor
     explicit ServerEndpoint(Address addr)
