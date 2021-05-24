@@ -1,3 +1,5 @@
+#pragma once
+
 #include <pistache/net.h>
 #include <pistache/http.h>
 #include <pistache/peer.h>
