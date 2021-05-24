@@ -73,9 +73,6 @@ public:
         return status;
     }
 
-    // Get settings
-    string get();
-
     // Check if date and time are valid in struct
     bool dateAndTimeIsValid(struct tm tm);
 

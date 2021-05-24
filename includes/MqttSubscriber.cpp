@@ -24,7 +24,6 @@ void MqttSubscriber::onConnect(struct mosquitto *mosq, void *obj, int connection
     mosquitto_subscribe(mosq, NULL, "program", 0);
     mosquitto_subscribe(mosq, NULL, "environment", 0);
     mosquitto_subscribe(mosq, NULL, "clothes", 0);
-    mosquitto_subscribe(mosq, NULL, "settings-request", 0);
     mosquitto_subscribe(mosq, NULL, "status-request", 0);
     mosquitto_subscribe(mosq, NULL, "environment-request", 0);
     mosquitto_subscribe(mosq, NULL, "recommandations-request", 0);
@@ -58,10 +57,6 @@ void MqttSubscriber::onMessage(struct mosquitto *mosq, void *obj, const struct m
         else if (topic == "custom-program") {
             result = washingMachine.setCustomWashingProgram(settingsValues);
             mosquitto_publish(mosq, NULL, "program-output", result.length(), result.c_str(), 0, false);
-        }
-        else if (topic == "settings-request") {
-            result = washingMachine.get();
-            mosquitto_publish(mosq, NULL, "settings-output", result.length(), result.c_str(), 0, true);
         }
         else if (topic == "status-request") {
             result = washingMachine.getScheduleAndProgram();
