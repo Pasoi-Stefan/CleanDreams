@@ -97,7 +97,7 @@ string WashingMachine::getRecommendedWashingProgram() {
         {"speed", recommendedWashingProgram.getSpeed()},
         {"temperature", recommendedWashingProgram.getTemperature()},
         {"duration", recommendedWashingProgram.getTime()},
-        {"tetergent", recommendedWashingProgram.getDetergent()}
+        {"detergent", recommendedWashingProgram.getDetergent()}
     };
 
     return responseBody.dump();
@@ -253,7 +253,7 @@ string WashingMachine::setEnvironmentMessage(json environment) {
     return "Water supply, impurity or detergent not provided";
 }
 
-json WashingMachine::getEnvironment() {
+string WashingMachine::getEnvironment() {
     // https://github.com/nlohmann/json#examples
     // First example
     cout << status << '\n';
@@ -264,7 +264,7 @@ json WashingMachine::getEnvironment() {
             {"detergentCache", detergentCache}
     };
 
-    return responseBody;
+    return responseBody.dump();
 }
 
 

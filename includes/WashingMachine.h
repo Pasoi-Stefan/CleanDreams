@@ -93,7 +93,7 @@ public:
 
     string insertClothesMessage(json settingsValues);
 
-    json getEnvironment();
+    string getEnvironment();
 
     string setEnvironmentMessage(json environment);
 

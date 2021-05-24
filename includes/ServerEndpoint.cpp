@@ -83,7 +83,7 @@ void ServerEndpoint::setEnvironment(const Rest::Request& request, Http::Response
 
 
 void ServerEndpoint::getEnvironment(const Rest::Request& request, Http::ResponseWriter response) {
-    json environment = washingMachine.getEnvironment();
+    json environment = json::parse(washingMachine.getEnvironment());
     response.headers()
             .add<Http::Header::Server>("pistache/0.1")
             .add<Http::Header::ContentType>(MIME(Application, Json));
