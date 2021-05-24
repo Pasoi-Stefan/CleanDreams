@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <iomanip>
@@ -107,7 +109,7 @@ public:
 
     string insertClothesMessage(json settingsValues);
 
-    json getEnvironment();
+    string getEnvironment();
 
     string setEnvironmentMessage(json environment);
 

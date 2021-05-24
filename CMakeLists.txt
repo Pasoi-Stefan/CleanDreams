@@ -10,5 +10,7 @@ pkg_check_modules(Pistache REQUIRED IMPORTED_TARGET libpistache)
 # https://github.com/nlohmann/json#cmake - CMake configuration for nlohmann_json
 find_package(nlohmann_json 3.2.0 REQUIRED)
 
-add_executable(${PROJECT_NAME} cleandreams_washing_machine.cpp includes/WashingMachine.cpp includes/WashingMachine.h includes/ServerEndpoint.cpp includes/ServerEndpoint.h includes/WashingProgram.cpp includes/WashingProgram.h)
-target_link_libraries(${PROJECT_NAME} PkgConfig::Pistache nlohmann_json::nlohmann_json)
+pkg_check_modules(Mosquitto REQUIRED IMPORTED_TARGET libmosquitto)
+
+add_executable(${PROJECT_NAME} cleandreams_washing_machine.cpp includes/WashingMachine.cpp includes/WashingMachine.h includes/ServerEndpoint.cpp includes/ServerEndpoint.h includes/WashingProgram.cpp includes/WashingProgram.h includes/MqttSubscriber.cpp includes/MqttSubscriber.h)
+target_link_libraries(${PROJECT_NAME} PkgConfig::Pistache nlohmann_json::nlohmann_json PkgConfig::Mosquitto)
