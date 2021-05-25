@@ -1,0 +1,361 @@
+{
+	"info": {
+		"_postman_id": "f2a737b6-2c00-4fa5-ba2d-f5c3d022695f",
+		"name": "examples",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Commands",
+			"item": [
+				{
+					"name": "cancel",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"cancel\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9080/settings",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9080",
+							"path": [
+								"settings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "pause",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"pause\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9080/settings",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9080",
+							"path": [
+								"settings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "unpause",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"unpause\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9080/settings",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9080",
+							"path": [
+								"settings"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "show environment",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9080/environment",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9080",
+					"path": [
+						"environment"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "modify environment",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"waterSupplyAvailable\": true,\r\n    \"impurity\": 1,\r\n    \"detergentCache\": 500\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9080/environment",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9080",
+					"path": [
+						"environment"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get recommended program",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9080/clothes",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9080",
+					"path": [
+						"clothes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "insert clothes",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"clothesList\": [\r\n        [\r\n            \"Wool\",\r\n            \"#FFFFF0\"\r\n        ],\r\n        [\r\n            \"Cotton\",\r\n            \"#FFFFF0\"\r\n        ],\r\n        [\r\n            \"Synthetic\",\r\n            \"#FFFFF0\"\r\n        ]\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9080/clothes",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9080",
+					"path": [
+						"clothes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "show program and status",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9080/program",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9080",
+					"path": [
+						"program"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "schedule program",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"scheduledTime\": \"25.05.2021 10:11\",\r\n    \"customProgram\": {\r\n        \"speed\": 800,\r\n        \"temperature\": 40,\r\n        \"time\": 1,\r\n        \"detergent\": 100\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9080/program",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9080",
+					"path": [
+						"program"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "standard",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"standardProgram\": \"Normal\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9080/program",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9080",
+							"path": [
+								"program"
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				},
+				{
+					"name": "custom name",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"customProgram\": \"programNou\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9080/program",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9080",
+							"path": [
+								"program"
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				},
+				{
+					"name": "custom options",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"customProgram\": {\r\n        \"speed\": 700,\r\n        \"temperature\": 40,\r\n        \"time\": 30,\r\n        \"detergent\": 100\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9080/program",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9080",
+							"path": [
+								"program"
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "add custom program",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"programName\": \"programNou\",\r\n    \"speed\": 800,\r\n    \"temperature\": 40,\r\n    \"time\": 30,\r\n    \"detergent\": 100\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9080/addCustom",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9080",
+					"path": [
+						"addCustom"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
