@@ -189,11 +189,9 @@ string WashingMachine::setSettingsMessage(json settingsValues) {
         int setResponse = set(key, val);
 
         if(setResponse == 0) {
-            //response.send(Http::Code::Bad_Request, key + " was not found and or '" + to_string(val) + "' was not a valid value ");
             return key + " was not found and or '" + to_string(val) + "' was not a valid value ";
         }
         if(setResponse == 2) {
-            //response.send(Http::Code::Bad_Request, key + " was not found and or '" + to_string(val) + "' was not a valid value ");
             return "Can't unpause washing program while water supply is missing or impurity is too high";
         }
 
@@ -473,10 +471,8 @@ string WashingMachine::insertClothesMessage(json settingsValues) {
     updateStatus();
 
     if(settingsValues["clothesList"] == nullptr) {
-        //response.send(Http::Code::Bad_Request, "Request must contain clothes list");
         return "Request must contain clothes list";
     } else if (!settingsValues["clothesList"].is_array()) {
-        //response.send(Http::Code::Bad_Request, "Clothes list must be an array");
         return "Clothes list must be an array";
     }
 
@@ -484,12 +480,10 @@ string WashingMachine::insertClothesMessage(json settingsValues) {
 
     for (json pair : settingsValues["clothesList"]) {
         if (!pair.is_array()) {
-            //response.send(Http::Code::Bad_Request, "Elements inside clothes list must be arrays");
             return "Elements inside clothes list must be arrays";
         }
 
         if (pair.size() != 2) {
-            //response.send(Http::Code::Bad_Request, "Arrays inside clothes list must contain only 2 elements");
             return "Arrays inside clothes list must contain exactly 2 elements";
         }
 
@@ -497,12 +491,10 @@ string WashingMachine::insertClothesMessage(json settingsValues) {
         json color = pair.at(1);
 
         if (!fabric.is_string() || !color.is_string()) {
-            //response.send(Http::Code::Bad_Request, "Elements inside clothes list must contain only strings");
             return "Elements inside clothes list must contain only strings";
         }
 
         if (!fabricInList(fabric)) {
-            //response.send(Http::Code::Bad_Request, "Fabric must be one of the following: Silk, Wool, Cotton, Leather, Velvet, Synthetic");
             return "Fabric must be one of the following: Silk, Wool, Cotton, Leather, Velvet, Synthetic";
         }
 
@@ -538,21 +530,18 @@ string WashingMachine::insertClothesMessage(json settingsValues) {
 
 string WashingMachine::scheduleProgramMessage(json settingsValues) {
     if(!waterSupplyAvailable || impurity > 5) {
-        return "Can't schedule washing program without water supply.";
+        return "Can't schedule washing program without water supply or with high levels of impurity.";
     }
 
     if(settingsValues["scheduledTime"] == nullptr) {
-        //response.send(Http::Code::Bad_Request, "Schedule time is not set.");
         return "Schedule time is not set.";
     }
 
     if(settingsValues["standardProgram"] == nullptr && settingsValues["customProgram"] == nullptr) {
-        //response.send(Http::Code::Bad_Request, "No program is selected or created.");
         return "No program is selected or created.";
     }
 
     if(settingsValues["standardProgram"] != nullptr && settingsValues["customProgram"] != nullptr) {
-        //response.send(Http::Code::Bad_Request, "Can only select predefined program or create a new program.");
         return "Can only select predefined program or create a new program.";
     }
 
@@ -566,7 +555,6 @@ string WashingMachine::scheduleProgramMessage(json settingsValues) {
             if (getCustomWashingProgram(programName) != nullptr) {
                 customWashingProgram = *(getCustomWashingProgram(programName));
             } else {
-                //response.send(Http::Code::Bad_Request, "Could not find custom program with the given name.");
                 return "Could not find custom program with the given name.";
             }
 
@@ -575,7 +563,6 @@ string WashingMachine::scheduleProgramMessage(json settingsValues) {
                 settingsValues["customProgram"]["temperature"] == nullptr ||
                 settingsValues["customProgram"]["time"] == nullptr ||
                 settingsValues["customProgram"]["detergent"] == nullptr ) {
-                //response.send(Http::Code::Bad_Request, "At least one field of given custom program is missing or is spelled incorrectly");
                 return "At least one field of given custom program is missing or is spelled incorrectly";
             
             } else {
@@ -589,12 +576,10 @@ string WashingMachine::scheduleProgramMessage(json settingsValues) {
                 if (customProgramIsValid(customProgram))
                     customWashingProgram = customProgram;
                 else{
-                    //response.send(Http::Code::Bad_Request, "Invalid parameters for custom washing program.");
                     return "Invalid parameters for custom washing program.";
                 }
             }
         } else {
-            //response.send(Http::Code::Bad_Request, "Custom program must be string or object.");
             return "Custom program must be string or object.";
         }
     }
@@ -605,7 +590,6 @@ string WashingMachine::scheduleProgramMessage(json settingsValues) {
 
         // Check if the name of the washing program exists
         if(not WashingMachine::standardWashingPrograms.count(programName)) {
-            //response.send(Http::Code::Bad_Request, "Could not find standard program with the given name.");
             return "Could not find standard program with the given name.";
         }
 
@@ -621,19 +605,15 @@ string WashingMachine::scheduleProgramMessage(json settingsValues) {
 
     switch (code) {
         case -1: {
-            //response.send(Http::Code::Bad_Request, "Current washing program is pending, still running or it is paused.");
             return "Current washing program is pending, still running or it is paused.";
         }
         case -2:{
-            //response.send(Http::Code::Bad_Request, "Scheduled time does not match the format \"dd.dd.dddd dd:dd\" where d is a digit.");
             return "Scheduled time does not match the format \"dd.dd.dddd dd:dd\" where d is a digit.";
         }
         case -3:{
-            //response.send(Http::Code::Bad_Request, "Scheduled time has an invalid date or time.");
             return "Scheduled time has an invalid date or time.";
         }
         case -4:{
-            //response.send(Http::Code::Bad_Request, "Schedule must be set for a date in the future.");
             return "Schedule must be set for a date in the future.";
         }
     }
@@ -672,7 +652,6 @@ string WashingMachine::setCustomWashingProgram(json programValues) {
         programValues["temperature"] == nullptr ||
         programValues["time"] == nullptr ||
         programValues["detergent"] == nullptr ) {
-        //response.send(Http::Code::Bad_Request, "At least one field of given custom program is missing or is spelled incorrectly");
         return "At least one field of given custom program is missing or is spelled incorrectly";
     }
 
@@ -687,7 +666,6 @@ string WashingMachine::setCustomWashingProgram(json programValues) {
         addCustomProgram(programName, customProgram);
         return "Custom program added successfully!";
     } else{
-        //response.send(Http::Code::Bad_Request, "Invalid parameters for custom washing program.");
         return "Invalid parameters for custom washing program.";
     }
 
